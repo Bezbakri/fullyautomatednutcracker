@@ -4,6 +4,7 @@ import discord
 
 
 ADMINS = {}
+BLACKLIST_TOKENS = []
 
 
 class EcosystemBots:
@@ -16,10 +17,34 @@ def load_creds(is_debug, bot: str):
         return creds[bot + "BETA_TOKEN"] if is_debug else creds[bot + "TOKEN"]
 
 
+def load_reddit_creds():
+    with open(r'config/creds.json') as f:
+        creds = json.load(f)
+        return creds['REDDIT_USERNAME'], creds['REDDIT_PASSWORD'], creds['REDDIT_SECRET'], creds['REDDIT_ID']
+
+
 def load_admins():
     global ADMINS
     with open('config/admin.json') as fp:
         ADMINS = json.load(fp)
+
+
+def load_blacklist():
+    global BLACKLIST_TOKENS
+    with open('config/blacklisted_tokens.list') as fp:
+        BLACKLIST_TOKENS = list([l.strip().lstrip().lower() for l in fp.readlines()])
+
+
+def has_blacklisted_word(string):
+    string = string.lower()
+    for token in BLACKLIST_TOKENS:
+        if token in string:
+            return True
+    return False
+
+
+def is_blacklisted(token):
+    return token in BLACKLIST_TOKENS
 
 
 def is_admin(user: discord.User):
